@@ -6,54 +6,42 @@ on:
       - master
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  format:
-    name: Code linting
-    runs-on: ubuntu-18.04
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    name: Test Elixir ${{ matrix.elixir }} / OTP ${{ matrix.otp }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - elixir: "1.19.x"
+            otp: "28.x"
+          - elixir: "1.20.x"
+            otp: "29.x"
+
+    env:
+      MIX_ENV: test
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Elixir environment
-        uses: erlef/setup-elixir@v1
+      - uses: erlef/setup-beam@54075bcc5e249e4758d363f27d099f55d843f124 # v1.24.1
         with:
-          otp-version: 21.3
-          elixir-version: 1.8
+          otp-version: ${{ matrix.otp }}
+          elixir-version: ${{ matrix.elixir }}
 
-      - run: mix deps.get
+      - name: Install dependencies
+        run: mix deps.get
 
       - name: Check formatting
         run: mix format --check-formatted
 
       - name: Check compilation warnings
         run: mix compile --warnings-as-errors
-
-  test:
-    name: Test suite
-    runs-on: ubuntu-16.04
-
-    strategy:
-      matrix:
-        versions:
-          - otp: 18.3
-            elixir: 1.5
-          - otp: 21.3
-            elixir: 1.8
-
-    env:
-      MIX_ENV: test
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Elixir environment
-        uses: erlef/setup-elixir@v1
-        with:
-          elixir-version: ${{ matrix.versions.elixir }}
-          otp-version: ${{ matrix.versions.otp }}
-
-      - name: Install dependencies
-        run: mix deps.get --only test
 
       - name: Run tests
         run: mix test
