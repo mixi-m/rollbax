@@ -36,11 +36,11 @@ defmodule Rollbax.Mixfile do
 
   defp deps() do
     [
-      {:hackney, "~> 1.1"},
+      {:hackney, "~> 1.1 or ~> 4.0"},
       {:jason, "~> 1.0"},
       {:ex_doc, "~> 0.18", only: :dev, runtime: false},
-      {:plug, "~> 1.4", only: :test},
-      {:cowboy, "~> 1.1", only: :test}
+      {:plug, "~> 1.14", only: :test},
+      {:plug_cowboy, "~> 2.7", only: :test}
     ]
   end
 

@@ -1,5 +1,6 @@
 Logger.configure(level: :info)
 Application.ensure_all_started(:hackney)
+Application.ensure_all_started(:plug_cowboy)
 ExUnit.start()
 
 defmodule ExUnit.RollbaxCase do
@@ -30,6 +31,7 @@ defmodule ExUnit.RollbaxCase do
 
   def ensure_rollbax_client_down(pid) do
     ref = Process.monitor(pid)
+    GenServer.stop(pid)
 
     receive do
       {:DOWN, ^ref, _, _, _} -> :ok
@@ -52,7 +54,7 @@ end
 
 defmodule RollbarAPI do
   alias Plug.Conn
-  alias Plug.Adapters.Cowboy
+  alias Plug.Cowboy
 
   import Conn
 
